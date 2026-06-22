@@ -16,6 +16,7 @@ class AuthappConfig(AppConfig):
 	name = "authapp"
 
 	def ready(self):
+		from django.db import OperationalError, ProgrammingError
 		from django.db.models.signals import post_save
 		from django.contrib.auth import get_user_model
 		
@@ -84,7 +85,11 @@ class AuthappConfig(AppConfig):
 		User = get_user_model()
 		post_save.connect(create_user_profile, sender=User)
 		post_save.connect(create_user_wallet, sender=User)
-		ensure_admin_wallet_exists()
+		try:
+			ensure_admin_wallet_exists()
+		except (OperationalError, ProgrammingError):
+			# Database tables may not exist yet while running initial migrations.
+			pass
 
 
 
