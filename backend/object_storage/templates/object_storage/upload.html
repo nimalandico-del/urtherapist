@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .file-card {
+            margin: 16px 0;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .file-preview {
+            display: block;
+            max-width: 320px;
+            max-height: 240px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload File</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
+    {% if path %}
+        <p>File uploaded: {{ path }}</p>
+    {% endif %}
+    <h2>Uploaded Files</h2>
+    {% for file in files %}
+        <div class="file-card">
+            <a href="{{ file.url }}" target="_blank" rel="noopener">{{ file.name }}</a>
+
+            {% if file.is_image %}
+                <img class="file-preview" src="{{ file.url }}" alt="{{ file.name }}">
+            {% elif file.is_video %}
+                <video class="file-preview" src="{{ file.url }}" controls></video>
+            {% elif file.is_audio %}
+                <audio class="file-preview" src="{{ file.url }}" controls></audio>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No files uploaded.</p>
+    {% endfor %}
+</body>
+</html>

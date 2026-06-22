@@ -1,0 +1,145 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}ارسال نوتیفیکیشن | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:auth_user_changelist' %}">کاربران</a>
+&rsaquo; ارسال نوتیفیکیشن
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>ارسال نوتیفیکیشن به کاربران</h1>
+
+<form method="post" id="send-notification-form">
+    {% csrf_token %}
+    
+    <fieldset class="module aligned">
+        <h2>اطلاعات نوتیفیکیشن</h2>
+        
+        <div class="form-row">
+            <div>
+                <label for="id_title">عنوان:</label>
+                <input type="text" name="title" id="id_title" maxlength="200" required style="width: 100%; padding: 8px;">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div>
+                <label for="id_message">پیام:</label>
+                <textarea name="message" id="id_message" rows="5" required style="width: 100%; padding: 8px;"></textarea>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div>
+                <label for="id_user_type">نوع کاربر:</label>
+                <select name="user_type" id="id_user_type" style="width: 100%; padding: 8px;">
+                    <option value="all">همه کاربران</option>
+                    <option value="patient">فقط بیماران</option>
+                    <option value="therapist">فقط درمانگران</option>
+                </select>
+            </div>
+        </div>
+    </fieldset>
+    
+    <fieldset class="module aligned">
+        <h2>انتخاب کاربران</h2>
+        <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+            <strong>نکته:</strong> کاربرانی که دستگاه ثبت شده ندارند، نوتیفیکیشن را در اپلیکیشن دریافت نمی‌کنند (فقط در دیتابیس ذخیره می‌شود). 
+            برای دریافت نوتیفیکیشن پوش، کاربران باید ابتدا اپلیکیشن را باز کرده و وارد شوند تا دستگاهشان ثبت شود.
+        </div>
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="width: 30px;"><input type="checkbox" id="select-all" onclick="toggleAllUsers()"></th>
+                        <th>نام کاربری</th>
+                        <th>نوع</th>
+                        <th>دستگاه ثبت شده</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><input type="checkbox" name="users" value="{{ user.id }}" class="user-checkbox"></td>
+                        <td>{{ user.username }}</td>
+                        <td>
+                            {% if user.therapist_profile and user.therapist_profile.is_approved %}
+                                <span style="color: green;">درمانگر</span>
+                            {% else %}
+                                <span style="color: blue;">بیمار</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.device_tokens.exists %}
+                                <span style="color: green;">✓ دارد ({{ user.device_tokens.count }})</span>
+                            {% else %}
+                                <span style="color: orange;">✗ ندارد</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </fieldset>
+    
+    <div class="submit-row">
+        <input type="submit" value="ارسال نوتیفیکیشن" class="default" style="background: #417690; color: white; padding: 10px 20px; border: none; cursor: pointer;">
+    </div>
+</form>
+
+<script>
+function toggleAllUsers() {
+    const selectAll = document.getElementById('select-all');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+    });
+}
+
+document.getElementById('send-notification-form').addEventListener('submit', function(e) {
+    const checkedUsers = document.querySelectorAll('.user-checkbox:checked');
+    if (checkedUsers.length === 0) {
+        e.preventDefault();
+        alert('لطفاً حداقل یک کاربر را انتخاب کنید.');
+        return false;
+    }
+    
+    const title = document.getElementById('id_title').value.trim();
+    const message = document.getElementById('id_message').value.trim();
+    
+    if (!title || !message) {
+        e.preventDefault();
+        alert('لطفاً عنوان و پیام را وارد کنید.');
+        return false;
+    }
+    
+    if (!confirm(`آیا مطمئن هستید که می‌خواهید نوتیفیکیشن را به ${checkedUsers.length} کاربر ارسال کنید؟`)) {
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+
+<style>
+.form-row {
+    margin-bottom: 15px;
+}
+.form-row label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+.submit-row {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+</style>
+{% endblock %}
+

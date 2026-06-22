@@ -1,0 +1,439 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static %}
+
+{% block title %}چت پشتیبانی | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .support-chat-container {
+        display: flex;
+        height: calc(100vh - 200px);
+        min-height: 600px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f5f5f5;
+    }
+    
+    .users-sidebar {
+        width: 300px;
+        background: white;
+        border-right: 1px solid #ddd;
+        overflow-y: auto;
+        padding: 0;
+    }
+    
+    .users-sidebar-header {
+        padding: 15px;
+        background: #417690;
+        color: white;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .user-item {
+        padding: 12px 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .user-item:hover {
+        background: #f0f0f0;
+    }
+    
+    .user-item.active {
+        background: #e3f2fd;
+        border-left: 3px solid #417690;
+    }
+    
+    .user-info {
+        flex: 1;
+    }
+    
+    .user-name {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+    }
+    
+    .user-username {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .user-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+    }
+    
+    .unread-badge {
+        background: #dc3545;
+        color: white;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: bold;
+        min-width: 20px;
+        text-align: center;
+    }
+    
+    .last-message-time {
+        font-size: 11px;
+        color: #999;
+    }
+    
+    .chat-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: white;
+    }
+    
+    .chat-header {
+        padding: 15px 20px;
+        background: #417690;
+        color: white;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .chat-header h3 {
+        margin: 0;
+        font-size: 16px;
+    }
+    
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f5f5f5;
+    }
+    
+    .message {
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .message.support-staff {
+        align-items: flex-end;
+    }
+    
+    .message.user {
+        align-items: flex-start;
+    }
+    
+    .message-bubble {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        word-wrap: break-word;
+        position: relative;
+    }
+    
+    .message.support-staff .message-bubble {
+        background: #417690;
+        color: white;
+        border-bottom-right-radius: 4px;
+    }
+    
+    .message.user .message-bubble {
+        background: #e0e0e0;
+        color: #333;
+        border-bottom-left-radius: 4px;
+    }
+    
+    .message-content {
+        margin-bottom: 4px;
+    }
+    
+    .message-time {
+        font-size: 11px;
+        opacity: 0.7;
+        margin-top: 4px;
+    }
+    
+    .message-sender {
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        opacity: 0.8;
+    }
+    
+    .chat-input-area {
+        padding: 15px 20px;
+        background: white;
+        border-top: 1px solid #ddd;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .chat-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        font-size: 14px;
+        resize: none;
+        min-height: 40px;
+        max-height: 120px;
+    }
+    
+    .chat-input:focus {
+        outline: none;
+        border-color: #417690;
+    }
+    
+    .send-button {
+        padding: 10px 25px;
+        background: #417690;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.2s;
+    }
+    
+    .send-button:hover {
+        background: #2d5a7a;
+    }
+    
+    .send-button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+    
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: #999;
+    }
+    
+    .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+    }
+    
+    .refresh-button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-left: 10px;
+    }
+    
+    .refresh-button:hover {
+        background: #218838;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; <a href="{% url 'admin:authapp_supportchat_changelist' %}">پیام‌های پشتیبانی</a>
+    &rsaquo; چت پشتیبانی
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>چت پشتیبانی</h1>
+
+<div class="support-chat-container">
+    <!-- Users Sidebar -->
+    <div class="users-sidebar">
+        <div class="users-sidebar-header">
+            کاربران
+        </div>
+        {% if users %}
+            {% for user in users %}
+            <div class="user-item {% if selected_user and selected_user.id == user.user_id %}active{% endif %}" 
+                 onclick="selectUser({{ user.user_id }})">
+                <div class="user-info">
+                    <div class="user-name">{{ user.name }}</div>
+                    <div class="user-username">@{{ user.username }}</div>
+                </div>
+                <div class="user-badge">
+                    {% if user.unread_count > 0 %}
+                    <span class="unread-badge">{{ user.unread_count }}</span>
+                    {% endif %}
+                    <span class="last-message-time">{{ user.last_message_at|date:"H:i" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="padding: 20px; text-align: center; color: #999;">
+                هیچ کاربری با پشتیبانی چت نکرده است
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Chat Area -->
+    <div class="chat-area">
+        {% if selected_user %}
+            <div class="chat-header">
+                <div>
+                    <h3>{{ selected_user.profile.first_name|default:selected_user.username }} {{ selected_user.profile.last_name|default:"" }}</h3>
+                    <small>@{{ selected_user.username }}</small>
+                </div>
+                <button class="refresh-button" onclick="refreshMessages()">🔄 بروزرسانی</button>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                {% for msg in chat_messages %}
+                <div class="message {% if msg.is_support_staff %}support-staff{% else %}user{% endif %}">
+                    <div class="message-sender">
+                        {% if msg.is_support_staff %}
+                            پشتیبانی
+                        {% else %}
+                            {{ msg.sender.username }}
+                        {% endif %}
+                    </div>
+                    <div class="message-bubble">
+                        <div class="message-content">
+                            {% if msg.message_type == 'VOICE' %}
+                                🎤 پیام صوتی
+                            {% else %}
+                                {{ msg.content|linebreaks }}
+                            {% endif %}
+                        </div>
+                        <div class="message-time">{{ msg.created_at|date:"H:i" }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <div>هنوز پیامی ارسال نشده است</div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <form method="post" id="message-form" style="display: none;">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" value="{{ selected_user.id }}">
+            </form>
+            <div class="chat-input-area">
+                <textarea 
+                    id="message-input" 
+                    class="chat-input" 
+                    placeholder="پیام خود را بنویسید..."
+                    rows="1"
+                    onkeydown="handleKeyDown(event)"></textarea>
+                <button type="button" class="send-button" onclick="sendMessage()" id="send-button">ارسال</button>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">👈</div>
+                <div>لطفاً یک کاربر را از لیست سمت راست انتخاب کنید</div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+const selectedUserId = {{ selected_user.id|default:"null" }};
+let autoRefreshInterval = null;
+
+function selectUser(userId) {
+    window.location.href = '{% url "admin_support_chat" %}?user_id=' + userId;
+}
+
+function refreshMessages() {
+    if (selectedUserId) {
+        window.location.reload();
+    }
+}
+
+function sendMessage() {
+    const input = document.getElementById('message-input');
+    const message = input.value.trim();
+    const sendButton = document.getElementById('send-button');
+    
+    if (!message || !selectedUserId) {
+        return;
+    }
+    
+    // Disable button
+    sendButton.disabled = true;
+    sendButton.textContent = 'در حال ارسال...';
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{% url "admin_support_chat" %}';
+    
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = '{{ csrf_token }}';
+    form.appendChild(csrfInput);
+    
+    const userIdInput = document.createElement('input');
+    userIdInput.type = 'hidden';
+    userIdInput.name = 'user_id';
+    userIdInput.value = selectedUserId;
+    form.appendChild(userIdInput);
+    
+    const contentInput = document.createElement('input');
+    contentInput.type = 'hidden';
+    contentInput.name = 'content';
+    contentInput.value = message;
+    form.appendChild(contentInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+}
+
+// Auto-refresh messages every 10 seconds
+if (selectedUserId) {
+    autoRefreshInterval = setInterval(() => {
+        refreshMessages();
+    }, 10000);
+}
+
+// Auto-scroll to bottom on load
+window.addEventListener('load', function() {
+    const messagesContainer = document.getElementById('chat-messages');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+});
+
+// Cleanup interval on page unload
+window.addEventListener('beforeunload', function() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+});
+</script>
+{% endblock %}
+
