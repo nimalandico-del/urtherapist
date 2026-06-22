@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Therapist App",
+    "slug": "therapist-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "enabled": false
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.example.therapistapp"
+    },
+    "extra": {
+      "apiBaseUrl": "https://9vlx0jwr-8000.euw.devtunnels.ms",
+      "eas": {
+        "projectId": "5362edae-e04b-4e7c-8580-f9dbc7921ce9"
+      }
+    },
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}

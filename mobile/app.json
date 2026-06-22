@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "RN OTP Login",
+    "slug": "rn-otp-login",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "scheme": "rn-otp-login",
+    "updates": {
+      "enabled": false
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.example.rnotplogin"
+    },
+    "extra": {
+      "apiBaseUrl": "https://9vlx0jwr-8000.euw.devtunnels.ms",
+      "eas": {
+        "projectId": "152a6bfe-6ba1-4804-aab8-12f27a07100d"
+      }
+    },
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-asset",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#ffffff"
+        }
+      ]
+    ],
+    "owner": "nimalandi2"
+  }
+}
