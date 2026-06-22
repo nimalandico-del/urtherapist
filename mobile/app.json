@@ -24,10 +24,7 @@
       "package": "com.example.rnotplogin"
     },
     "extra": {
-      "apiBaseUrl": "https://9vlx0jwr-8000.euw.devtunnels.ms",
-      "eas": {
-        "projectId": "152a6bfe-6ba1-4804-aab8-12f27a07100d"
-      }
+      "apiBaseUrl": "https://9vlx0jwr-8000.euw.devtunnels.ms"
     },
     "newArchEnabled": true,
     "plugins": [
@@ -39,7 +36,6 @@
           "color": "#ffffff"
         }
       ]
-    ],
-    "owner": "nimalandi2"
+    ]
   }
 }
