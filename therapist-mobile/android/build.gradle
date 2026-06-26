@@ -20,7 +20,7 @@ buildscript {
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
     }
     dependencies {
-        classpath('com.android.tools.build:gradle:8.1.0')
+        classpath('com.android.tools.build:gradle:8.7.0')
         classpath('com.facebook.react:react-native-gradle-plugin')
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
     }
