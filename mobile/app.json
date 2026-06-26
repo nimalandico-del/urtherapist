@@ -24,7 +24,10 @@
       "package": "com.example.rnotplogin"
     },
     "extra": {
-      "apiBaseUrl": "https://9vlx0jwr-8000.euw.devtunnels.ms"
+      "apiBaseUrl": "https://9vlx0jwr-8000.euw.devtunnels.ms",
+      "eas": {
+        "projectId": "dc9a8601-fa38-429c-bbac-4789e479b502"
+      }
     },
     "newArchEnabled": true,
     "plugins": [
