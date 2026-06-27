@@ -29,7 +29,7 @@
         "projectId": "dc9a8601-fa38-429c-bbac-4789e479b502"
       }
     },
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "plugins": [
       "expo-asset",
       [
