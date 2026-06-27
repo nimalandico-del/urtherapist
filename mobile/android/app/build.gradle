@@ -86,12 +86,6 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    externalNativeBuild {
-        cmake {
-            version "3.28.0"
-        }
-    }
-
     namespace 'com.example.rnotplogin'
     defaultConfig {
         applicationId 'com.example.rnotplogin'
@@ -99,11 +93,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
-        externalNativeBuild {
-            cmake {
-                cppFlags ""
-            }
-        }
     }
     signingConfigs {
         debug {
